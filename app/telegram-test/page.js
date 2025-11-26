@@ -2,7 +2,7 @@
 
 import { useApp } from '@/lib/AppContext'
 import { getTelegramUser, getTelegramUserId, isRunningInTelegram, showTelegramAlert, telegramHapticFeedback } from '@/lib/telegram'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export default function TelegramTestPage() {
   const { userId, updateUserIdFromTelegram, isRunningInTelegram: contextIsInTelegram, telegramUser } = useApp()
@@ -17,7 +17,7 @@ export default function TelegramTestPage() {
     }])
   }
 
-  const runTests = () => {
+  const runTests = useCallback(() => {
     setTestResults([])
     
     // Тест 1: Проверка доступности Telegram WebApp
@@ -60,7 +60,7 @@ export default function TelegramTestPage() {
         match ? 'ID совпадают' : `Telegram: ${telegramId}, Context: ${userId}`
       )
     }
-  }
+  }, [userId])
 
   const testTelegramAlert = () => {
     showTelegramAlert('Тестовое уведомление из Telegram WebApp!')
@@ -87,7 +87,7 @@ export default function TelegramTestPage() {
   useEffect(() => {
     // Автоматически запускаем тесты при загрузке
     setTimeout(runTests, 1000)
-  }, [])
+  }, [runTests])
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -191,3 +191,4 @@ const resultStyle = {
   borderRadius: '4px',
   border: '1px solid #ddd'
 }
+
