@@ -1,0 +1,67 @@
+.container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.content {
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.message {
+  margin: 0 0 32px 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.retryButton {
+  padding: 16px 32px;
+  background: #1775F1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.2s;
+  min-width: 200px;
+}
+
+.retryButton:hover:not(:disabled) {
+  background: #0d5fc4;
+}
+
+.retryButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+
+
+
+
+
+

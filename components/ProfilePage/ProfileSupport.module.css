@@ -1,0 +1,76 @@
+.support {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.intro {
+  font-size: 13px;
+  color: #5A5A5A;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.topics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.topicCard {
+  border-radius: 10px;
+  background-color: #F3F4F6;
+  padding: 22px 0px 23px 17px;
+}
+
+.topicTitle {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0px 0px 7px 0px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.topicDescription {
+  font-size: 12px;
+  color: #5A5A5A;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.supportBtn {
+  width: 100%;
+  height: 57px;
+  background-color: #E0F2FC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.supportBtn:hover {
+  background-color: #D0E8F8;
+}
+
+.supportIcon {
+  width: 19px;
+  height: 19px;
+  margin: 0px 10px 2px 0px;
+}
+
+.supportText {
+  color: #3384AC;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+}
+
+
+
+
+
+
+
+

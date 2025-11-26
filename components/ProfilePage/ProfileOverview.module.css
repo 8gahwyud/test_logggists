@@ -1,0 +1,230 @@
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subscriptionCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #E5E7EB;
+  position: relative;
+  overflow: hidden;
+}
+
+.subscriptionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px rgba(23, 117, 241, 0.15);
+}
+
+.subscriptionCardActive {
+  background: linear-gradient(135deg, #1775F1 0%, #1565C0 100%);
+  border: none;
+  color: white;
+}
+
+.subscriptionCardActive:hover {
+  box-shadow: 0px 4px 16px rgba(23, 117, 241, 0.3);
+}
+
+.subscriptionCardIcon {
+  width: 48px;
+  height: 48px;
+  background: #FEE2E2;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.subscriptionCardActive .subscriptionCardIcon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.subscriptionCardContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.subscriptionCardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  transition: color 0.2s;
+}
+
+.subscriptionCardActive .subscriptionCardTitle {
+  color: white;
+}
+
+.subscriptionCardSubtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+  transition: color 0.2s;
+}
+
+.subscriptionCardActive .subscriptionCardSubtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.subscriptionCardArrow {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.subscriptionCard:hover .subscriptionCardArrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.subscriptionCardActive .subscriptionCardArrow {
+  opacity: 0.8;
+}
+
+.subscriptionCardActive .subscriptionCardArrow path {
+  stroke: white;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.statValue {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.statLabel {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.achievementsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.achievementCard {
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.achievementCard.blue {
+  background: #1775F1;
+}
+
+.achievementCard.red {
+  background: #FF6B6B;
+}
+
+.achievementCard.green {
+  background: #059669;
+}
+
+.achievementCard.white {
+  background: white;
+}
+
+.achievementTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.achievementCard.white .achievementTitle {
+  color: #333;
+}
+
+.achievementSubtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.achievementCard.white .achievementSubtitle {
+  color: #666;
+}
+
+.settingsCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.settingsCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settingsIcon {
+  width: 40px;
+  height: 40px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settingsInfo {
+  flex: 1;
+}
+
+.settingsTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.settingsSubtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+}

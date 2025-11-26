@@ -1,0 +1,12 @@
+.list {
+  margin: 16px 0;
+  padding: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+}
+

@@ -1,0 +1,689 @@
+.main {
+  padding: 20px;
+  padding-top: 0px;
+  background: #F5F5F5;
+  min-height: calc(100vh - 82px);
+  padding-bottom: 100px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+}
+
+.form {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background: white;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #1775F1;
+  box-shadow: 0 0 0 3px rgba(23, 117, 241, 0.1);
+}
+
+/* Стилизация календаря и времени */
+.input[type="date"],
+.input[type="time"] {
+  position: relative;
+  color-scheme: light;
+}
+
+.input[type="date"]::-webkit-calendar-picker-indicator,
+.input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(200deg);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.input[type="date"]::-webkit-datetime-edit-text,
+.input[type="time"]::-webkit-datetime-edit-text {
+  color: #666;
+  padding: 0 2px;
+}
+
+.input[type="date"]::-webkit-datetime-edit-month-field,
+.input[type="date"]::-webkit-datetime-edit-day-field,
+.input[type="date"]::-webkit-datetime-edit-year-field,
+.input[type="time"]::-webkit-datetime-edit-hour-field,
+.input[type="time"]::-webkit-datetime-edit-minute-field {
+  color: #333;
+  padding: 0 2px;
+}
+
+.input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+.input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+  background-color: rgba(23, 117, 241, 0.1);
+  color: #1775F1;
+  outline: none;
+}
+
+/* Стилизация календаря (для браузеров, которые поддерживают ::-webkit-calendar-picker-indicator) */
+.input[type="date"]:focus::-webkit-calendar-picker-indicator,
+.input[type="time"]:focus::-webkit-calendar-picker-indicator {
+  filter: invert(0.3) sepia(1) saturate(5) hue-rotate(200deg);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #999;
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.formRow {
+  display: flex;
+  gap: 12px;
+}
+
+.formRow .formGroup {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.calculation {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.calculationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.calculationRow:last-child {
+  margin-bottom: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(5, 150, 105, 0.2);
+  font-weight: 600;
+}
+
+.calculationValue {
+  font-weight: 600;
+  color: #059669;
+}
+
+.calculationTotal {
+  font-size: 16px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 16px;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  margin-top: 20px;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover {
+  background: #047857;
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.photosContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photosPreview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.photoPreview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #E0E0E0;
+  display: flex;
+  flex-direction: column;
+}
+
+.photoPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  flex: 1;
+}
+
+.photoInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.photoName {
+  font-size: 10px;
+  color: white;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.photoSize {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.photoSizeError {
+  color: #ff4444;
+  font-weight: 600;
+}
+
+.removePhoto {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.removePhoto:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.photoUpload {
+  display: block;
+  cursor: pointer;
+}
+
+.photoUploadButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  border: 2px dashed #E0E0E0;
+  border-radius: 12px;
+  background: #FAFAFA;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.photoUploadButton:hover {
+  border-color: #059669;
+  background: #f0fdf4;
+}
+
+.photoUploadButton svg {
+  width: 32px;
+  height: 32px;
+  color: #059669;
+}
+
+.photoUploadButton span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+.photoCount {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: #999;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .form {
+    padding: 20px;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+}
+
+.loaderOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.loaderContent {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #E0E0E0;
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loaderText {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Кастомный календарь и выбор времени */
+.dateTimePickerWrapper {
+  position: relative;
+}
+
+.dateTimeInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.dateTimeInput:hover {
+  border-color: #1775F1;
+}
+
+.dateTimeInput:focus-within {
+  outline: none;
+  border-color: #1775F1;
+  box-shadow: 0 0 0 3px rgba(23, 117, 241, 0.1);
+}
+
+.dateTimeInput svg {
+  flex-shrink: 0;
+}
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  min-width: 300px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.calendarNavButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1775F1;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.calendarNavButton:hover {
+  background: #f0f9ff;
+}
+
+.calendarMonthYear {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.calendarWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.calendarWeekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  padding: 8px 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.calendarDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendarDay {
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendarDay:hover:not(:disabled) {
+  background: #f0f9ff;
+  color: #1775F1;
+}
+
+.calendarDay:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calendarDayOtherMonth {
+  color: #ccc;
+}
+
+.calendarDayPast {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.calendarDayToday {
+  background: #f0f9ff;
+  color: #1775F1;
+  font-weight: 700;
+}
+
+.calendarDaySelected {
+  background: #1775F1;
+  color: white;
+  font-weight: 700;
+}
+
+.calendarDaySelected:hover {
+  background: #0d5aa7;
+}
+
+.timePicker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  min-width: 200px;
+  animation: slideDown 0.2s ease-out;
+  display: flex;
+  gap: 16px;
+  max-height: 300px;
+}
+
+.timePickerColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.timePickerLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-align: center;
+  margin-bottom: 8px;
+  margin-top: 0;
+  font-family: 'Montserrat', sans-serif;
+  height: 20px;
+  line-height: 20px;
+}
+
+.timePickerScrollWrapper {
+  position: relative;
+  height: 200px;
+}
+
+.timePickerScroll {
+  height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  position: relative;
+  padding: 80px 0;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.timePickerScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.timePickerScroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.timePickerScroll::-webkit-scrollbar-thumb {
+  background: #1775F1;
+  border-radius: 2px;
+}
+
+.timePickerScroll::-webkit-scrollbar-thumb:hover {
+  background: #0d5aa7;
+}
+
+.timePickerItem {
+  height: 40px;
+  min-height: 40px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 8px;
+  margin: 0;
+  position: relative;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.timePickerItem:hover:not(.timePickerItemPast) {
+  background: #f0f9ff;
+  color: #1775F1;
+}
+
+.timePickerItemPast {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.timePickerItemSelected {
+  background: #1775F1;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  transform: scale(1.1);
+}
+
+.timePickerItemSelected:hover {
+  background: #0d5aa7;
+}
+
+.timePickerOverlay {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 40px;
+  border-top: 2px solid #1775F1;
+  border-bottom: 2px solid #1775F1;
+  pointer-events: none;
+  border-radius: 8px;
+  background: rgba(23, 117, 241, 0.05);
+  z-index: 1;
+  margin: 0;
+  transform: translateY(-50%);
+}
