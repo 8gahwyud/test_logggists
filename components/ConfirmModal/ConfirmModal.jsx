@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import styles from './ConfirmModal.module.css'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 export default function ConfirmModal({ 
   isOpen, 
@@ -38,11 +39,14 @@ export default function ConfirmModal({
     }
     // onCancel теперь сам закрывает модалку через AppContext
   }
+  
+  const handleClose = type === 'alert' ? handleConfirm : handleCancel
+  const contentRef = useSwipeToClose(handleClose, isOpen)
 
   return (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={type === 'alert' ? handleConfirm : handleCancel}></div>
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+      <div ref={contentRef} className={styles.content} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle}></div>
         
         <div className={styles.header}>

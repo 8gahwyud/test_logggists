@@ -1,9 +1,11 @@
 .blocks {
   display: flex;
   gap: 9px;
-  margin: 8px 20px;
-  justify-content: center;
+  margin: 8px auto;
+  justify-content: space-between;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 373px;
 }
 
 .block {

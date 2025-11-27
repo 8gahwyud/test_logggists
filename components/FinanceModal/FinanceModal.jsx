@@ -3,9 +3,11 @@
 import { useEffect } from 'react'
 import { useApp } from '@/lib/AppContext'
 import styles from './FinanceModal.module.css'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 export default function FinanceModal({ onClose }) {
   const { balance, operations, loadUserBalance } = useApp()
+  const contentRef = useSwipeToClose(onClose, true)
 
   useEffect(() => {
     if (loadUserBalance) {
@@ -31,7 +33,7 @@ export default function FinanceModal({ onClose }) {
   return (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}></div>
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+      <div ref={contentRef} className={styles.content} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle}></div>
         
         <div className={styles.header}>

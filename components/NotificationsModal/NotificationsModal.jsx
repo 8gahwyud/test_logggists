@@ -3,9 +3,11 @@
 import { useEffect } from 'react'
 import { useApp } from '@/lib/AppContext'
 import styles from './NotificationsModal.module.css'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 export default function NotificationsModal({ isOpen, onClose }) {
   const { notifications, loadNotifications, markNotificationAsRead, handleNotificationClick } = useApp()
+  const contentRef = useSwipeToClose(onClose, isOpen)
 
   useEffect(() => {
     if (isOpen) {
@@ -89,7 +91,7 @@ export default function NotificationsModal({ isOpen, onClose }) {
   return (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}></div>
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+      <div ref={contentRef} className={styles.content} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle}></div>
         
         <div className={styles.header}>

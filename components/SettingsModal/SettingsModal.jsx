@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '@/lib/AppContext'
 import styles from './SettingsModal.module.css'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 // Функция для загрузки настройки из localStorage
 const getNotificationsEnabled = () => {
@@ -15,6 +16,7 @@ export default function SettingsModal({ isOpen, onClose, onModalStateChange }) {
   const { setIsAnyModalOpen } = useApp()
   // Инициализируем состояние сразу из localStorage
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => getNotificationsEnabled())
+  const contentRef = useSwipeToClose(onClose, isOpen)
 
   useEffect(() => {
     if (isOpen) {
@@ -57,7 +59,7 @@ export default function SettingsModal({ isOpen, onClose, onModalStateChange }) {
   return (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}></div>
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+      <div ref={contentRef} className={styles.content} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle}></div>
         
         <div className={styles.header}>

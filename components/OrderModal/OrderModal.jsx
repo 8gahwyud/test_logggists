@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useApp } from '@/lib/AppContext'
 import OrderChatModal from '../OrderChatModal/OrderChatModal'
 import styles from './OrderModal.module.css'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 export default function OrderModal({ order, onClose, onUpdate, onModalStateChange }) {
   const { callApi, profile, userId, setCurrentModalOrderId, setLoadResponses, setUpdateResponseInModal, showAlert, showConfirm, loadUserOrders, setIsAnyModalOpen } = useApp()
@@ -525,10 +526,12 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
     employeesToShow = workingEmployees
   }
 
+  const contentRef = useSwipeToClose(onClose, true)
+
   return (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}></div>
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+      <div ref={contentRef} className={styles.content} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle}></div>
         
         <div className={styles.header}>
