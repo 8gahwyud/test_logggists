@@ -24,8 +24,6 @@ export default function ConfirmModal({
     }
   }, [isOpen])
 
-  if (!isOpen) return null
-
   const handleConfirm = () => {
     if (onConfirm) {
       onConfirm()
@@ -41,7 +39,10 @@ export default function ConfirmModal({
   }
   
   const handleClose = type === 'alert' ? handleConfirm : handleCancel
+  // Хук должен вызываться до условного возврата
   const contentRef = useSwipeToClose(handleClose, isOpen)
+
+  if (!isOpen) return null
 
   return (
     <div className={styles.modal}>
