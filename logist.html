@@ -2842,7 +2842,7 @@
                     <span class="vacancies__time">${formatTimeAgo(order.created_at)}</span>
                 </div>
                 <div class="vacancies__container-order">
-                    <span class="vacancies__price">${escapeHtml(order.wage_per_hour || 0)}р/час</span>
+                    <span class="vacancies__price">${escapeHtml(order.wage_per_hour || 0)}₽ в час</span>
                     ${order.status === "completed" ? '' : `<button class="vacancies__button" data-order-id="${order.id}">
                         Открыть панель
                     </button>`}
@@ -3529,14 +3529,9 @@
             
             card.innerHTML = `
                 <div style="background: white; border: 2px solid #1775F1; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-                    <!-- Аватар с галочкой -->
+                    <!-- Аватар -->
                     <div style="position: relative; flex-shrink: 0;">
                         <img src="${avatarUrl}" alt="" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover;" onerror="this.src='img/new-desin/avatar.png'">
-                        <div style="position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; background: #1775F1; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
                     </div>
                     
                     <!-- Информация о пользователе -->
@@ -3555,8 +3550,8 @@
                                 <span style="font-size: 16px; font-weight: 700; color: #333; font-family: 'Montserrat', sans-serif;">${rating.toFixed(1)}</span>
                             </div>
                             <!-- Фиолетовая кнопка с иконкой -->
-                            <div style="width: 40px; height: 40px; background: #9333EA; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div style="width: 32px; height: 32px; background: #9333EA; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white"/>
                                 </svg>
                             </div>
@@ -3565,11 +3560,6 @@
                     
                     <!-- Кнопки действий в зависимости от статуса -->
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        ${status === 'working' ? 
-                            `<div style="padding: 8px 16px; background: #e8f5e8; color: #2e7d32; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; font-family: 'Montserrat', sans-serif;">
-                                ✅ Работает
-                            </div>` : ''
-                        }
                         ${status === 'accepted' ? 
                             `<button class="employee-card__button" data-employee-id="${employee.id}" data-order-id="${orderId}" style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Montserrat', sans-serif;">
                                 Подтвердить
@@ -3692,10 +3682,8 @@
             if (resp?.success) {
                 let message = 'Заказ отменен.\n';
                 if (resp.penalty) {
-                    message += `Штраф: ${resp.penalty}₽\n`;
-                }
-                if (resp.perResponder) {
-                    message += `Компенсация исполнителям: ${resp.perResponder}₽ каждому`;
+                    const penaltyAmount = resp.penalty?.amount || resp.penalty;
+                    message += `С вашего счета списан штраф в размере ${penaltyAmount}₽\n`;
                 }
                 alert(message);
                 await loadUserOrders();
@@ -4343,7 +4331,7 @@
                 id: 'logist_basic',
                 name: 'Стартовый',
                 price: '0',
-                period: 'руб/мес',
+                period: '₽/мес',
                 features: [
                     'До 10 заказов в день',
                     'Базовый трекинг',
@@ -4356,7 +4344,7 @@
                 id: 'logist_pro',
                 name: 'PRO',
                 price: '799',
-                period: 'руб/мес',
+                period: '₽/мес',
                 features: [
                     'До 50 заказов в день',
                     'Расширенный трекинг',
@@ -4371,7 +4359,7 @@
                 id: 'logist_enterprise',
                 name: 'Предприятие',
                 price: '1499',
-                period: 'руб/мес',
+                period: '₽/мес',
                 features: [
                     'Неограниченное количество заказов',
                     'Полный API доступ',
@@ -4433,7 +4421,7 @@
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #333; font-family: 'Montserrat', sans-serif;">${sub.name}</h3>
-                                <div style="font-size: 16px; font-weight: 600; color: #333; font-family: 'Montserrat', sans-serif;">${sub.price}${sub.period === 'руб/мес' ? 'Р / мес' : sub.period}</div>
+                                <div style="font-size: 16px; font-weight: 600; color: #333; font-family: 'Montserrat', sans-serif;">${sub.price}${sub.period === '₽/мес' ? '₽/мес' : sub.period}</div>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                 ${sub.features.slice(0, 4).map(feature => `
@@ -4461,7 +4449,7 @@
                 // Обновляем текст кнопки подтверждения
                 const selectedSub = subscriptionData.find(sub => sub.id === subscriptionId);
                 if (selectedSub) {
-                    confirmButton.textContent = `Выбрать ${selectedSub.name} - ${selectedSub.price}${selectedSub.period === 'руб/мес' ? '₽/мес' : selectedSub.period}`;
+                    confirmButton.textContent = `Выбрать ${selectedSub.name} - ${selectedSub.price}${selectedSub.period === '₽/мес' ? '₽/мес' : selectedSub.period}`;
                 }
             }
         }
@@ -4472,7 +4460,7 @@
             
             const selectedSub = subscriptionData.find(sub => sub.id === selectedSubscription);
             if (selectedSub) {
-                alert(`🐱 Мяу! Вы выбрали подписку "${selectedSub.name}" для логиста!\nСтоимость: ${selectedSub.price}${selectedSub.period === 'руб/мес' ? '₽/мес' : selectedSub.period}`);
+                alert(`🐱 Мяу! Вы выбрали подписку "${selectedSub.name}" для логиста!\nСтоимость: ${selectedSub.price}${selectedSub.period === '₽/мес' ? '₽/мес' : selectedSub.period}`);
                 
                 // Здесь обычно отправляем данные на сервер
                 console.log(`Выбрана подписка: ${selectedSub.name} для логиста`);

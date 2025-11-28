@@ -9,11 +9,13 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
   const { callApi, showAlert } = useApp()
   const [expandedPerformer, setExpandedPerformer] = useState(null)
   const [ratings, setRatings] = useState({})
+  const [paymentConfirmed, setPaymentConfirmed] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   // Простые ключи для localStorage
   const modalKey = 'finalize_modal_data'
   const ratingsKey = 'finalize_modal_ratings'
+  const paymentConfirmedKey = 'finalize_modal_payment_confirmed'
   const expandedKey = 'finalize_modal_expanded'
   
 
@@ -26,6 +28,7 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
     
     // Пытаемся восстановить оценки
     const savedRatings = localStorage.getItem(ratingsKey)
+    const savedPaymentConfirmed = localStorage.getItem(paymentConfirmedKey)
     const savedExpanded = localStorage.getItem(expandedKey)
     
     if (savedRatings) {
@@ -49,6 +52,25 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
       })
       setRatings(initialRatings)
       localStorage.setItem(ratingsKey, JSON.stringify(initialRatings))
+    }
+    
+    if (savedPaymentConfirmed) {
+      try {
+        const parsedPaymentConfirmed = JSON.parse(savedPaymentConfirmed)
+        console.log('[FinalizeOrderModal] Восстанавливаем подтверждения оплаты:', parsedPaymentConfirmed)
+        setPaymentConfirmed(parsedPaymentConfirmed)
+      } catch (e) {
+        console.error('[FinalizeOrderModal] Ошибка парсинга подтверждений оплаты:', e)
+      }
+    } else {
+      // Инициализация пустых подтверждений оплаты
+      console.log('[FinalizeOrderModal] Инициализируем пустые подтверждения оплаты')
+      const initialPaymentConfirmed = {}
+      data.participants.forEach(p => {
+        initialPaymentConfirmed[p.telegram_id] = false
+      })
+      setPaymentConfirmed(initialPaymentConfirmed)
+      localStorage.setItem(paymentConfirmedKey, JSON.stringify(initialPaymentConfirmed))
     }
     
     if (savedExpanded) {
@@ -83,6 +105,17 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
     localStorage.setItem(ratingsKey, JSON.stringify(newRatings))
   }
 
+  const handlePaymentConfirmChange = (performerId, confirmed) => {
+    const newPaymentConfirmed = {
+      ...paymentConfirmed,
+      [performerId]: confirmed
+    }
+    setPaymentConfirmed(newPaymentConfirmed)
+    // Сохраняем подтверждения оплаты в localStorage при каждом изменении
+    console.log('[FinalizeOrderModal] Сохраняем подтверждения оплаты:', newPaymentConfirmed)
+    localStorage.setItem(paymentConfirmedKey, JSON.stringify(newPaymentConfirmed))
+  }
+
   const copyToClipboard = async (text) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -94,15 +127,42 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
 
   const allRated = data.participants.every(p => {
     const rating = ratings[p.telegram_id]
-    return rating && 
+    const isRated = rating && 
            rating.result > 0 && 
            rating.punctuality > 0 && 
            rating.communication > 0
+    const isPaymentConfirmed = paymentConfirmed[p.telegram_id] === true
+    return isRated && isPaymentConfirmed
   })
 
   const handleComplete = async () => {
     if (!allRated) {
-      await showAlert("Ошибка", "Необходимо оценить всех исполнителей")
+      const notRated = data.participants.filter(p => {
+        const rating = ratings[p.telegram_id]
+        const isRated = rating && 
+               rating.result > 0 && 
+               rating.punctuality > 0 && 
+               rating.communication > 0
+        const isPaymentConfirmed = paymentConfirmed[p.telegram_id] === true
+        return !isRated || !isPaymentConfirmed
+      })
+      
+      if (notRated.length > 0) {
+        const issues = notRated.map(p => {
+          const rating = ratings[p.telegram_id]
+          const isRated = rating && 
+                 rating.result > 0 && 
+                 rating.punctuality > 0 && 
+                 rating.communication > 0
+          const isPaymentConfirmed = paymentConfirmed[p.telegram_id] === true
+          const issuesList = []
+          if (!isRated) issuesList.push('не оценен')
+          if (!isPaymentConfirmed) issuesList.push('не подтверждена оплата')
+          return `${p.name} (${issuesList.join(', ')})`
+        }).join('\n')
+        
+        await showAlert("Ошибка", `Необходимо оценить всех исполнителей и подтвердить оплату:\n\n${issues}`)
+      }
       return
     }
 
@@ -258,9 +318,11 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
               const isExpanded = expandedPerformer === performer.telegram_id
               const performerRating = ratings[performer.telegram_id] || { result: 0, punctuality: 0, communication: 0 }
               const isRated = performerRating.result > 0 && performerRating.punctuality > 0 && performerRating.communication > 0
+              const isPaymentConfirmedForPerformer = paymentConfirmed[performer.telegram_id] === true
+              const isComplete = isRated && isPaymentConfirmedForPerformer
 
               return (
-                <div key={performer.telegram_id} className={styles.performerCard}>
+                <div key={performer.telegram_id} className={`${styles.performerCard} ${!isComplete ? styles.notRated : ''}`}>
                   <div 
                     className={`${styles.performerHeader} ${isExpanded ? styles.expanded : ''}`}
                     onClick={() => handlePerformerClick(performer.telegram_id)}
@@ -318,6 +380,21 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
                         </div>
                       )}
 
+                      {/* Подтверждение оплаты */}
+                      <div className={styles.paymentConfirmationSection}>
+                        <label className={styles.paymentConfirmationLabel}>
+                          <input
+                            type="checkbox"
+                            checked={isPaymentConfirmedForPerformer}
+                            onChange={(e) => handlePaymentConfirmChange(performer.telegram_id, e.target.checked)}
+                            className={styles.paymentConfirmationCheckbox}
+                          />
+                          <span className={styles.paymentConfirmationText}>
+                            Я подтверждаю, что отправил оплату исполнителю
+                          </span>
+                        </label>
+                      </div>
+
                       {/* Оценка */}
                       <div className={styles.ratingSection}>
                         <div className={styles.ratingTitle}>Оцените исполнителя</div>
@@ -358,7 +435,7 @@ export default function FinalizeOrderModal({ data, onClose, onComplete }) {
 
           {/* Инструкция */}
           <div className={styles.instruction}>
-            Чтобы завершить заказ вы должны перевести деньги и оценить каждого из исполнителей
+            Чтобы завершить заказ вы должны перевести деньги, подтвердить оплату и оценить каждого из исполнителей
           </div>
         </div>
 

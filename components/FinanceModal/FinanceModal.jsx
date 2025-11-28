@@ -39,13 +39,13 @@ export default function FinanceModal({ onClose }) {
         <div className={styles.header}>
           <button className={styles.close} onClick={onClose}>&times;</button>
           <h2 className={styles.title}>Финансы</h2>
-          <p className={styles.subtitle}>Просмотрите чат заказов</p>
+          <p className={styles.subtitle}>Просмотрите финансы</p>
         </div>
 
         <div className={styles.cards}>
           <div className={styles.balanceCard}>
             <p className={styles.amount}>{balance.available || '0₽'}</p>
-            <p className={styles.label}>Мой баланс</p>
+            <p className={styles.label}>Мой<br />баланс</p>
           </div>
         </div>
 

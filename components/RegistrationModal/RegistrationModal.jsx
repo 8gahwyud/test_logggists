@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useApp } from '@/lib/AppContext'
+import DocumentsModal from '@/components/DocumentsModal/DocumentsModal'
 import styles from './RegistrationModal.module.css'
 
 export default function RegistrationModal({ isOpen, onClose }) {
@@ -14,6 +15,8 @@ export default function RegistrationModal({ isOpen, onClose }) {
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [agreedToDocuments, setAgreedToDocuments] = useState(false)
+  const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -31,6 +34,7 @@ export default function RegistrationModal({ isOpen, onClose }) {
       })
       setAvatar(null)
       setAvatarPreview(null)
+      setAgreedToDocuments(false)
     }
   }, [isOpen])
 
@@ -111,6 +115,11 @@ export default function RegistrationModal({ isOpen, onClose }) {
       return
     }
 
+    if (!agreedToDocuments) {
+      await showAlert('Ошибка', 'Необходимо согласиться с документами')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -162,7 +171,7 @@ export default function RegistrationModal({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay}>
       <div className={styles.card} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h1 className={styles.logo}>ТРУВО</h1>
@@ -234,15 +243,53 @@ export default function RegistrationModal({ isOpen, onClose }) {
             )}
           </div>
 
+          <div className={styles.documentsSection}>
+            <button
+              type="button"
+              className={styles.documentsButton}
+              onClick={() => setIsDocumentsModalOpen(true)}
+              disabled={isSubmitting}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Просмотреть документы
+            </button>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={agreedToDocuments}
+                onChange={(e) => setAgreedToDocuments(e.target.checked)}
+                disabled={isSubmitting}
+                className={styles.checkbox}
+              />
+              <span className={styles.checkboxText}>
+                Я согласен(а) со всеми прикрепленными выше документами
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !agreedToDocuments}
           >
             {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
       </div>
+      {isDocumentsModalOpen && (
+        <DocumentsModal
+          isOpen={isDocumentsModalOpen}
+          onClose={(e) => {
+            if (e) {
+              e.stopPropagation()
+            }
+            setIsDocumentsModalOpen(false)
+          }}
+        />
+      )}
     </div>
   )
 }

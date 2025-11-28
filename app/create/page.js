@@ -1,20 +1,47 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useApp } from '@/lib/AppContext'
 import Header from '@/components/Header/Header'
 import BottomNav from '@/components/BottomNav/BottomNav'
 import CreateOrderPage from '@/components/CreateOrderPage/CreateOrderPage'
 import FinanceModal from '@/components/FinanceModal/FinanceModal'
-import SupportModal from '@/components/SupportModal/SupportModal'
 
 export default function CreateRoute() {
+  const router = useRouter()
+  const { balance, checkNegativeBalance } = useApp()
   const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false)
-  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false)
 
   useEffect(() => {
-    setIsAnyModalOpen(isFinanceModalOpen || isSupportModalOpen)
-  }, [isFinanceModalOpen, isSupportModalOpen])
+    setIsAnyModalOpen(isFinanceModalOpen)
+  }, [isFinanceModalOpen])
+
+  // Проверяем баланс при загрузке страницы
+  useEffect(() => {
+    const checkBalance = async () => {
+      if (balance) {
+        const balanceValue = Number(balance.available?.replace('₽', '') || 0)
+        if (balanceValue < 0) {
+          // Редиректим на профиль при минусовом балансе
+          router.push('/profile')
+          if (checkNegativeBalance) {
+            await checkNegativeBalance()
+          }
+        }
+      } else {
+        // Если баланс еще не загружен, проверяем через функцию
+        if (checkNegativeBalance) {
+          const hasNegativeBalance = await checkNegativeBalance()
+          if (hasNegativeBalance) {
+            router.push('/profile')
+          }
+        }
+      }
+    }
+    checkBalance()
+  }, [balance, checkNegativeBalance, router])
 
   return (
     <>
@@ -23,17 +50,11 @@ export default function CreateRoute() {
       {!isAnyModalOpen && (
         <BottomNav 
           onFinanceClick={() => setIsFinanceModalOpen(true)}
-          onSupportClick={() => setIsSupportModalOpen(true)}
         />
       )}
       {isFinanceModalOpen && (
         <FinanceModal 
           onClose={() => setIsFinanceModalOpen(false)} 
-        />
-      )}
-      {isSupportModalOpen && (
-        <SupportModal 
-          onClose={() => setIsSupportModalOpen(false)} 
         />
       )}
     </>

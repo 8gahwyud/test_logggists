@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/lib/AppContext'
+import { pluralizeOrder } from '@/utils/pluralize'
 import styles from './CreateOrderPage.module.css'
 
 export default function CreateOrderPage() {
   const router = useRouter()
-  const { userId, callApi, loadUserOrders, loadUserBalance, showAlert, profile } = useApp()
+  const { userId, callApi, loadUserOrders, loadUserBalance, showAlert, profile, checkNegativeBalance } = useApp()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -16,7 +17,7 @@ export default function CreateOrderPage() {
     date: '',
     start_time: '',
     people: 1,
-    duration: 4,
+    duration: 1,
     rate: ''
   })
   const [photos, setPhotos] = useState([]) // Массив выбранных фото (File objects)
@@ -37,11 +38,16 @@ export default function CreateOrderPage() {
       return
     }
 
+    // Проверяем минусовой баланс
+    if (checkNegativeBalance && await checkNegativeBalance()) {
+      return
+    }
+
     // Проверяем лимит создания заказов
     const orderLimit = profile?.subscription?.order_limit || 5
     const dailyCollected = profile?.daily_collected_count || 0
     if (dailyCollected >= orderLimit) {
-      await showAlert("Лимит достигнут", `Достигнут дневной лимит создания заказов (${orderLimit}). Попробуйте завтра.`)
+      await showAlert("Лимит достигнут", `Достигнут дневной лимит создания ${pluralizeOrder(orderLimit)} (${orderLimit}). Попробуйте завтра.`)
       return
     }
 
@@ -49,8 +55,14 @@ export default function CreateOrderPage() {
       ? `${formData.date}T${formData.start_time}:00` 
       : null
 
-    if (formData.duration < 4) {
-      await showAlert("Ошибка", "Минимальное время работы - 4 часа")
+    // Проверяем, что часы - целое число (кратность 1)
+    if (!Number.isInteger(parseFloat(formData.duration)) || formData.duration < 1) {
+      await showAlert("Ошибка", "Количество часов должно быть целым числом, минимум 1 час")
+      return
+    }
+
+    if (parseFloat(formData.rate) < 200) {
+      await showAlert("Ошибка", "Минимальная стоимость часа - 200₽")
       return
     }
 
@@ -131,7 +143,7 @@ export default function CreateOrderPage() {
           date: '',
           start_time: '',
           people: 1,
-          duration: 4,
+          duration: 1,
           rate: ''
         })
         // Очищаем фото и освобождаем preview URLs
@@ -173,14 +185,30 @@ export default function CreateOrderPage() {
   }
 
   const handleChange = (e) => {
-    const newValue = e.target.value
+    let newValue = e.target.value
+    const fieldName = e.target.name
+    
+    // Для поля duration - только целые числа
+    if (fieldName === 'duration') {
+      // Удаляем все нецифровые символы кроме пустой строки
+      if (newValue === '' || newValue === '-') {
+        // Разрешаем пустую строку или минус для ввода
+        newValue = newValue
+      } else {
+        // Округляем до целого числа
+        const numValue = Math.round(parseFloat(newValue) || 0)
+        // Если значение меньше 1, устанавливаем 1
+        newValue = numValue < 1 ? 1 : numValue
+      }
+    }
+    
     const newFormData = {
       ...formData,
-      [e.target.name]: newValue
+      [fieldName]: newValue
     }
     
     // Если изменилась дата и выбрана сегодняшняя дата, проверяем время
-    if (e.target.name === 'date') {
+    if (fieldName === 'date') {
       const today = new Date().toISOString().split('T')[0]
       if (newValue === today && formData.start_time) {
         const now = new Date()
@@ -193,6 +221,14 @@ export default function CreateOrderPage() {
     }
     
     setFormData(newFormData)
+  }
+  
+  // Обработчик для блокировки ввода точки/запятой в поле duration
+  const handleDurationKeyDown = (e) => {
+    // Блокируем ввод точки, запятой и других недопустимых символов
+    if (e.key === '.' || e.key === ',' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+      e.preventDefault()
+    }
   }
 
   const handlePhotoChange = (e) => {
@@ -819,16 +855,27 @@ export default function CreateOrderPage() {
 
           <div className={styles.formGroup}>
             <label className={styles.label} htmlFor="duration">
-              Часы (мин. 4)
+              Часы
             </label>
             <input
               type="number"
               className={styles.input}
               id="duration"
               name="duration"
-              min="4"
+              min="1"
+              step="1"
               value={formData.duration}
               onChange={handleChange}
+              onKeyDown={handleDurationKeyDown}
+              onBlur={(e) => {
+                // При потере фокуса округляем до целого, если введено дробное
+                const value = Math.round(parseFloat(e.target.value) || 1)
+                if (value < 1) {
+                  setFormData({ ...formData, duration: 1 })
+                } else if (value !== parseFloat(e.target.value)) {
+                  setFormData({ ...formData, duration: value })
+                }
+              }}
               required
             />
           </div>
@@ -843,9 +890,9 @@ export default function CreateOrderPage() {
             className={styles.input}
             id="rate"
             name="rate"
-            min="0"
-            step="100"
-            placeholder="0"
+            min="200"
+            step="1"
+            placeholder="200"
             value={formData.rate}
             onChange={handleChange}
             required

@@ -1,5 +1,6 @@
 import OrderCard from './OrderCard'
 import styles from './OrdersList.module.css'
+import { pluralizeOrder } from '@/utils/pluralize'
 
 export default function OrdersList({ orders, filter, onOrderClick }) {
   // Фильтрация уже выполнена в OrdersPage, просто отображаем переданные заказы
@@ -8,15 +9,17 @@ export default function OrdersList({ orders, filter, onOrderClick }) {
   if (!orders || orders.length === 0) {
     return (
       <div className={styles.empty}>
-        <p>Заказов не найдено.</p>
+        <p>{pluralizeOrder(0)} не найдено.</p>
       </div>
     )
   }
 
   if (filteredOrders.length === 0) {
+    const count = 0
+    const orderWord = pluralizeOrder(count)
     return (
       <div className={styles.empty}>
-        <p>{filter === 'finished' ? 'Завершенных заказов нет.' : 'Активных заказов нет.'}</p>
+        <p>{filter === 'finished' ? `Завершенных ${orderWord} нет.` : `Активных ${orderWord} нет.`}</p>
       </div>
     )
   }

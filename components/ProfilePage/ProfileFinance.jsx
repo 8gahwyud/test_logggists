@@ -17,7 +17,7 @@ export default function ProfileFinance({ onFinanceClick }) {
 
       <div className={styles.operations}>
         <h3 className={styles.operationsTitle}>История операций</h3>
-        {operations.length === 0 ? (
+        {!operations || operations.length === 0 ? (
           <p className={styles.empty}>Нет операций</p>
         ) : (
           <div className={styles.operationsList}>

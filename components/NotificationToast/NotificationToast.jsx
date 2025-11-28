@@ -6,13 +6,13 @@ import styles from './NotificationToast.module.css'
 export default function NotificationToast({ notification, onClick, onClose }) {
   useEffect(() => {
     console.log('[NotificationToast] Компонент смонтирован с уведомлением:', notification?.id)
-    // Автоматически скрываем через 5 секунд
+    // Автоматически скрываем через 10 секунд
     const timer = setTimeout(() => {
-      console.log('[NotificationToast] Автоматическое закрытие через 5 секунд')
+      console.log('[NotificationToast] Автоматическое закрытие через 10 секунд')
       if (onClose) {
         onClose()
       }
-    }, 5000)
+    }, 10000)
 
     return () => {
       console.log('[NotificationToast] Компонент размонтирован')

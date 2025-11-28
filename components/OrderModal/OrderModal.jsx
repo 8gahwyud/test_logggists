@@ -1,22 +1,49 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react'
 import { useApp } from '@/lib/AppContext'
 import OrderChatModal from '../OrderChatModal/OrderChatModal'
+import EditOrderModal from '../EditOrderModal/EditOrderModal'
+import { pluralizeResponse } from '@/utils/pluralize'
 import styles from './OrderModal.module.css'
 import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 export default function OrderModal({ order, onClose, onUpdate, onModalStateChange }) {
-  const { callApi, profile, userId, setCurrentModalOrderId, setLoadResponses, setUpdateResponseInModal, showAlert, showConfirm, loadUserOrders, setIsAnyModalOpen } = useApp()
+  const { callApi, profile, userId, setCurrentModalOrderId, setLoadResponses, setUpdateResponseInModal, showAlert, showConfirm, loadUserOrders, setIsAnyModalOpen, checkNegativeBalance } = useApp()
+  // Вычисляем начальную вкладку синхронно на основе статуса заказа
+  const initialTab = useMemo(() => {
+    const isOrderInProgress = order?.status === 'in_progress' || order?.status === 'working'
+    return isOrderInProgress ? 'working' : 'pending'
+  }, [order?.status])
+  
   // Если заказ в работе, сразу показываем вкладку "В работе"
-  const [activeTab, setActiveTab] = useState(() => {
-    return order?.status === 'in_progress' ? 'working' : 'pending'
-  })
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [responses, setResponses] = useState([])
   const [loading, setLoading] = useState(false) // Не показываем загрузку при открытии
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [userDataCache, setUserDataCache] = useState({}) // Кэш для данных пользователей
   const [flippedRatings, setFlippedRatings] = useState(new Set()) // Отслеживаем перевернутые рейтинги
+  const orderIdRef = useRef(order?.id) // Отслеживаем ID заказа
+
+  // Обновляем вкладку синхронно до рендера, если заказ изменился
+  useLayoutEffect(() => {
+    if (order?.id !== orderIdRef.current) {
+      orderIdRef.current = order?.id
+      const isOrderInProgress = order?.status === 'in_progress' || order?.status === 'working'
+      setActiveTab(isOrderInProgress ? 'working' : 'pending')
+    } else if (order?.id && orderIdRef.current) {
+      // Если заказ тот же, но статус мог измениться, проверяем и обновляем вкладку
+      const isOrderInProgress = order?.status === 'in_progress' || order?.status === 'working'
+      setActiveTab(prevTab => {
+        // Если заказ в работе, устанавливаем вкладку 'working'
+        if (isOrderInProgress && prevTab !== 'working') {
+          return 'working'
+        }
+        return prevTab
+      })
+    }
+  }, [order?.id, order?.status])
 
   useEffect(() => {
     if (onModalStateChange) {
@@ -126,25 +153,40 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
     }
   }, [order?.id, loadResponses])
   
-  // Обновляем активную вкладку при изменении статуса заказа или когда заказ переходит в работу
+  // Обновляем активную вкладку только если заказ перешел в работу ПОСЛЕ открытия модалки
+  // НЕ меняем вкладку, если заказ уже был в работе при открытии (она уже установлена правильно)
   useEffect(() => {
     const isOrderInProgress = order?.status === 'in_progress' || order?.status === 'working'
     
-    // Проверяем, достаточно ли подтвержденных исполнителей для перехода заказа в работу
-    const workingEmployees = responses.filter(r => r.status === 'working' || r.status === 'in_progress' || r.status === 'confirmed')
-    const requiredSlots = order?.required_slots || 1
-    const isOrderFull = workingEmployees.length >= requiredSlots
-    
-    // Если заказ в статусе "в работе" или достаточно подтвержденных исполнителей, переключаемся на вкладку "В работе"
-    if (isOrderInProgress || isOrderFull) {
-      setActiveTab(prevTab => {
-        if (prevTab !== 'working') {
-          console.log('[OrderModal] Заказ перешел в работу, переключаемся на вкладку "В работе"')
-          return 'working'
-        }
+    // Если заказ уже в работе, вкладка уже установлена правильно при инициализации
+    // Меняем вкладку только если заказ перешел в работу после открытия модалки
+    setActiveTab(prevTab => {
+      // Если заказ в работе и вкладка уже 'working', не меняем
+      if (isOrderInProgress && prevTab === 'working') {
         return prevTab
-      })
-    }
+      }
+      
+      // Если заказ в работе, но вкладка не 'working', переключаемся
+      // (это может произойти только если заказ перешел в работу после открытия модалки)
+      if (isOrderInProgress && prevTab !== 'working') {
+        console.log('[OrderModal] Заказ перешел в работу, переключаемся на вкладку "В работе"')
+        return 'working'
+      }
+      
+      // Проверяем, достаточно ли подтвержденных исполнителей для перехода заказа в работу
+      const workingEmployees = responses.filter(r => r.status === 'working' || r.status === 'in_progress' || r.status === 'confirmed')
+      const requiredSlots = order?.required_slots || 1
+      const isOrderFull = workingEmployees.length >= requiredSlots
+      
+      // Если достаточно подтвержденных исполнителей, переключаемся на вкладку "В работе"
+      // (только если заказ еще не в работе по статусу)
+      if (!isOrderInProgress && isOrderFull && prevTab !== 'working') {
+        console.log('[OrderModal] Заказ перешел в работу, переключаемся на вкладку "В работе"')
+        return 'working'
+      }
+      
+      return prevTab
+    })
   }, [order?.status, responses, order?.required_slots])
 
   // Polling для обновления откликов (как в оригинале - каждые 2 секунды)
@@ -222,6 +264,11 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
   }, [order?.id, setCurrentModalOrderId, setLoadResponses, setUpdateResponseInModal, loadResponses])
 
   const handleEmployeeAction = async (responseId, action) => {
+    // Проверяем минусовой баланс
+    if (checkNegativeBalance && await checkNegativeBalance()) {
+      return
+    }
+    
     try {
       // Как в оригинале - используем updateResponseStatus
       let newStatus
@@ -313,6 +360,11 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
   }
 
   const handleCompleteOrder = async () => {
+    // Проверяем минусовой баланс
+    if (checkNegativeBalance && await checkNegativeBalance()) {
+      return
+    }
+    
     try {
       console.log("[handleCompleteOrder] Загрузка данных для завершения заказа:", order.id)
       const resp = await callApi({
@@ -353,57 +405,33 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
   }
 
 
-  // Функция расчета штрафа за отмену заказа
+  // Функция расчета суммы возврата комиссий (показывается как "штраф" в модалке)
   const calculateCancellationPenalty = (order, workingEmployees) => {
-    const totalAmount = Number(order.wage_per_hour || 0) * Number(order.duration_hours || 0) * Number(order.required_slots || 1)
-    
-    // Если заказ не набрался (нет исполнителей в работе) - без штрафа
+    // Если заказ не набрался (нет исполнителей в работе) - без возврата комиссий
     if (!workingEmployees || workingEmployees.length === 0) {
       return {
         penalty: 0,
         reason: 'Заказ не набрался',
-        compensationPerEmployee: 0
+        hoursUntilStart: 0
       }
     }
     
-    // Проверяем время до начала заказа
+    // Рассчитываем приблизительную сумму комиссий для возврата
+    // Используем среднюю комиссию 10% для расчета
+    const wagePerHour = Number(order.wage_per_hour || 0)
+    const durationHours = Number(order.duration_hours || 0)
+    const perPersonAmount = wagePerHour * durationHours
+    const estimatedCommissionPerPerson = Math.round(perPersonAmount * 0.1)
+    const totalCommission = estimatedCommissionPerPerson * workingEmployees.length
+    
+    // Проверяем время до начала заказа (для информации)
     const now = new Date()
     const startTime = new Date(order.start_time)
     const hoursUntilStart = (startTime - now) / (1000 * 60 * 60)
     
-    let penaltyPercent = 0
-    let reason = ''
-    
-    if (hoursUntilStart < 3) {
-      // Меньше 3 часов - 30% (10% нам, 20% исполнителям)
-      penaltyPercent = 30
-      reason = 'Менее 3 часов до начала'
-    } else if (hoursUntilStart < 12) {
-      // Меньше 12 часов - 20% (10% нам, 10% исполнителям)
-      penaltyPercent = 20
-      reason = 'Менее 12 часов до начала'
-    } else {
-      // Больше 12 часов - 10% (10% нам)
-      penaltyPercent = 10
-      reason = 'Заказ набрался'
-    }
-    
-    const penalty = Math.round(totalAmount * penaltyPercent / 100)
-    
-    // Компенсация исполнителям
-    let compensationPerEmployee = 0
-    if (hoursUntilStart < 3) {
-      // 20% от общей суммы делим на количество исполнителей
-      compensationPerEmployee = Math.round(totalAmount * 20 / 100 / workingEmployees.length)
-    } else if (hoursUntilStart < 12) {
-      // 10% от общей суммы делим на количество исполнителей
-      compensationPerEmployee = Math.round(totalAmount * 10 / 100 / workingEmployees.length)
-    }
-    
     return {
-      penalty,
-      reason,
-      compensationPerEmployee,
+      penalty: totalCommission, // Сумма возврата комиссий (показывается как "штраф")
+      reason: 'Возврат комиссий исполнителям',
       hoursUntilStart: Math.round(hoursUntilStart * 10) / 10
     }
   }
@@ -416,18 +444,45 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
     console.log("[handleCancelOrder] userId:", userId, "тип:", typeof userId)
     console.log("[handleCancelOrder] order.status:", order?.status)
     
-    // Рассчитываем штраф
-    const penaltyInfo = calculateCancellationPenalty(order, workingEmployees)
+    // Проверяем минусовой баланс
+    if (checkNegativeBalance && await checkNegativeBalance()) {
+      return
+    }
+    
+    // Получаем точную сумму комиссий с бэкенда
+    let commissionAmount = 0
+    try {
+      const commissionResp = await callApi({
+        action: "getCancellationCommissionAmount",
+        order_id: order.id
+      })
+      if (commissionResp?.success) {
+        commissionAmount = commissionResp.commission_amount || 0
+        console.log("[handleCancelOrder] Получена сумма комиссий с бэкенда:", commissionAmount)
+      } else {
+        console.warn("[handleCancelOrder] Не удалось получить сумму комиссий, используем приблизительный расчет")
+        // Fallback на приблизительный расчет
+        const penaltyInfo = calculateCancellationPenalty(order, workingEmployees)
+        commissionAmount = penaltyInfo.penalty
+      }
+    } catch (error) {
+      console.error("[handleCancelOrder] Ошибка получения суммы комиссий:", error)
+      // Fallback на приблизительный расчет
+      const penaltyInfo = calculateCancellationPenalty(order, workingEmployees)
+      commissionAmount = penaltyInfo.penalty
+    }
+    
+    // Проверяем время до начала заказа (для информации)
+    const now = new Date()
+    const startTime = new Date(order.start_time)
+    const hoursUntilStart = (startTime - now) / (1000 * 60 * 60)
     
     let confirmMessage = "Вы уверены, что хотите отменить заказ?"
-    if (penaltyInfo.penalty > 0) {
-      confirmMessage += `\n\nШтраф за отмену: ${penaltyInfo.penalty}₽`
-      confirmMessage += `\nПричина: ${penaltyInfo.reason}`
-      if (penaltyInfo.compensationPerEmployee > 0) {
-        confirmMessage += `\nКомпенсация каждому исполнителю: ${penaltyInfo.compensationPerEmployee}₽`
-      }
-      if (penaltyInfo.hoursUntilStart !== undefined) {
-        confirmMessage += `\nДо начала заказа: ${penaltyInfo.hoursUntilStart}ч`
+    if (commissionAmount > 0) {
+      confirmMessage += `\n\nС вашего счета будет списан штраф в размере ${commissionAmount}₽`
+      confirmMessage += `\nПричина: Возврат комиссий исполнителям`
+      if (hoursUntilStart !== undefined) {
+        confirmMessage += `\nДо начала заказа: ${Math.round(hoursUntilStart * 10) / 10}ч`
       }
     }
     
@@ -469,10 +524,7 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
         console.log("[handleCancelOrder] Заказ успешно отменен, ответ:", resp)
         let message = 'Заказ отменен.'
         if (resp.penalty) {
-          message += `\nШтраф: ${resp.penalty}₽`
-        }
-        if (resp.perResponder) {
-          message += `\nКомпенсация исполнителям: ${resp.perResponder}₽ каждому`
+          message += `\nС вашего счета списан штраф в размере ${resp.penalty.amount || resp.penalty}₽`
         }
         console.log("[handleCancelOrder] Показываем alert с сообщением:", message)
         await showAlert("Заказ отменен", message)
@@ -541,7 +593,7 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
         </div>
 
         {/* Кнопки управления заказом */}
-        {isOrderInProgress && isOrderFull ? (
+        {isOrderInProgress ? (
           <div className={styles.orderActions}>
             <h3 className={styles.orderStatusTitle}>✅ Заказ выполняется</h3>
             <div className={styles.orderButtons}>
@@ -558,6 +610,9 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
           </div>
         ) : (
           <div className={styles.orderActions}>
+            <button className={styles.editButton} onClick={() => setIsEditModalOpen(true)}>
+              ✏️ Редактировать заказ
+            </button>
             <button className={styles.cancelButton} onClick={handleCancelOrder}>
               🗑️ Отменить заказ
             </button>
@@ -669,11 +724,6 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
                         className={styles.avatar}
                         onError={(e) => { e.target.src = '/img/new-desin/avatar.png' }}
                       />
-                      <div className={styles.avatarCheck}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
                     </div>
                   </div>
                   
@@ -711,11 +761,6 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
                   </div>
                   
                   <div className={styles.employeeActions}>
-                    {activeTab === 'working' && (
-                      <div className={styles.workingBadge}>
-                        ✅ Работает
-                      </div>
-                    )}
                     {/* Кнопка подтверждения убрана - подтверждает заказчик, не логист */}
                     {activeTab === 'pending' && canAccept && (
                       <>
@@ -745,6 +790,16 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
           order={order} 
           onClose={() => setIsChatOpen(false)}
           onModalStateChange={onModalStateChange}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditOrderModal
+          order={order}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={() => {
+            if (onUpdate) onUpdate()
+            setIsEditModalOpen(false)
+          }}
         />
       )}
     </div>

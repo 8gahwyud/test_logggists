@@ -2,6 +2,7 @@
 
 import { useApp } from '@/lib/AppContext'
 import { formatTimeAgo } from '@/lib/utils'
+import { pluralizeResponse, pluralizePerson, pluralizeHour } from '@/utils/pluralize'
 import PhotoCarousel from './PhotoCarousel'
 
 const escapeHtml = (str = "") => {
@@ -46,6 +47,9 @@ export default function OrderCard({ order, onClick }) {
     console.log('[OrderCard] Заказ', order.id, 'имеет', orderPhotos.length, 'фото:', orderPhotos)
   }
   
+  // Определяем, находится ли заказ в работе
+  const isInWork = order.status === 'working' || order.status === 'in_progress' || order.status === 'accepted'
+  
   // Определяем рамочку для заказа
   const tierInfo = {
     logist_start: { frame: 'grey' },
@@ -54,7 +58,9 @@ export default function OrderCard({ order, onClick }) {
   }[profile.subscription_tier] || { frame: 'grey' }
   
   let frameClass = styles.frameGrey
-  if (order.premium) {
+  if (isInWork) {
+    frameClass = styles.frameGreen
+  } else if (order.premium) {
     frameClass = styles.frameGold
   } else if (tierInfo.frame === 'gold') {
     frameClass = styles.frameGold
@@ -134,7 +140,7 @@ export default function OrderCard({ order, onClick }) {
                   <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className={styles.text}>{order.duration_hours || 0} часа</span>
+              <span className={styles.text}>{order.duration_hours || 0} {pluralizeHour(order.duration_hours || 0)}</span>
             </div>
             <div className={styles.infoItem}>
               <div className={styles.icon}>
@@ -142,7 +148,7 @@ export default function OrderCard({ order, onClick }) {
                   <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.3503 17.623 3.8507 18.1676 4.55231C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className={styles.text}>{requiredSlots} человек</span>
+              <span className={styles.text}>{requiredSlots} {pluralizePerson(requiredSlots)}</span>
             </div>
           </div>
         </div>
@@ -150,12 +156,12 @@ export default function OrderCard({ order, onClick }) {
         <div className={styles.container}>
           <div className={styles.containerCustomer}>
             <span className={styles.customer}>
-              {order.status === 'completed' ? 'Завершен' : `${responsesCount} откликов`}
+              {order.status === 'completed' ? 'Завершен' : `${responsesCount} ${pluralizeResponse(responsesCount)}`}
             </span>
             <span className={styles.time}>{formatTimeAgo(order.created_at)}</span>
           </div>
           <div className={styles.containerOrder}>
-            <span className={styles.price}>{order.wage_per_hour || 0}р/час</span>
+            <span className={styles.price}>{order.wage_per_hour || 0}₽ в час</span>
             {order.status !== 'completed' && (
               <button 
                 className={styles.button}

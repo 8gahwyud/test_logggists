@@ -11,20 +11,24 @@ export default function ProfileRoute() {
   const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false)
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
+  const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false)
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false)
 
   useEffect(() => {
-    setIsAnyModalOpen(isFinanceModalOpen || isSupportModalOpen || isSubscriptionModalOpen)
-  }, [isFinanceModalOpen, isSupportModalOpen, isSubscriptionModalOpen])
+    setIsAnyModalOpen(isFinanceModalOpen || isSupportModalOpen || isSubscriptionModalOpen || isDocumentsModalOpen)
+  }, [isFinanceModalOpen, isSupportModalOpen, isSubscriptionModalOpen, isDocumentsModalOpen])
 
   return (
     <>
       <Header />
-      <ProfilePage onSubscriptionModalChange={setIsSubscriptionModalOpen} />
+      <ProfilePage 
+        onSubscriptionModalChange={setIsSubscriptionModalOpen}
+        onDocumentsModalChange={setIsDocumentsModalOpen}
+        onSupportModalChange={setIsSupportModalOpen}
+      />
       {!isAnyModalOpen && (
         <BottomNav 
           onFinanceClick={() => setIsFinanceModalOpen(true)}
-          onSupportClick={() => setIsSupportModalOpen(true)}
         />
       )}
       {isFinanceModalOpen && (

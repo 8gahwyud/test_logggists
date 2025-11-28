@@ -179,3 +179,71 @@
   cursor: not-allowed;
 }
 
+.documentsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.documentsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #F5F5F5;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.documentsButton:hover:not(:disabled) {
+  background: #E5E5E5;
+  border-color: #1775F1;
+}
+
+.documentsButton:disabled {
+  background: #F5F5F5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.documentsButton svg {
+  flex-shrink: 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #1775F1;
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.checkboxText {
+  font-size: 13px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.4;
+}
+

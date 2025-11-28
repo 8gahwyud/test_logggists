@@ -2,8 +2,9 @@
 
 import { useMemo } from 'react'
 import styles from './ProfileOverview.module.css'
+import { pluralizeOrder } from '@/utils/pluralize'
 
-export default function ProfileOverview({ onSubscriptionClick, onSettingsClick, subscriptionName, timeUntilReset, stats }) {
+export default function ProfileOverview({ onSubscriptionClick, onSettingsClick, onDocumentsClick, onSupportClick, subscriptionName, timeUntilReset, stats, balance }) {
   // Форматируем время до сброса
   const resetTimeFormatted = useMemo(() => {
     if (!timeUntilReset) return '00:00:00'
@@ -54,29 +55,32 @@ export default function ProfileOverview({ onSubscriptionClick, onSettingsClick, 
       </div>
 
       <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
+        <div className={`${styles.statCard} ${(() => {
+          const balanceValue = Number(balance?.available?.replace('₽', '') || stats.balance?.replace('₽', '') || 0)
+          return balanceValue < 0 ? styles.statCardNegative : ''
+        })()}`}>
           <p className={styles.statValue}>{stats.balance || '0₽'}</p>
-          <p className={styles.statLabel}>Баланс</p>
+          <p className={styles.statLabel} dangerouslySetInnerHTML={{ __html: 'Мой<br />баланс' }}></p>
         </div>
         <div className={styles.statCard}>
           <p className={styles.statValue}>{stats.activeOrders || 0}</p>
-          <p className={styles.statLabel}>Активных заказов</p>
+          <p className={styles.statLabel}>Активных {pluralizeOrder(stats.activeOrders || 0)}</p>
         </div>
         <div className={styles.statCard}>
           <p className={styles.statValue}>{stats.availableOrders || 0}</p>
-          <p className={styles.statLabel}>Доступно заказов</p>
+          <p className={styles.statLabel}>Доступно {pluralizeOrder(stats.availableOrders || 0)}</p>
         </div>
         <div className={styles.statCard}>
           <p className={styles.statValue}>{stats.totalOrders || 0}</p>
-          <p className={styles.statLabel}>Всего заказов</p>
+          <p className={styles.statLabel}>Всего {pluralizeOrder(stats.totalOrders || 0)}</p>
         </div>
         <div className={styles.statCard}>
           <p className={styles.statValue}>{stats.successfulOrders || 0}</p>
-          <p className={styles.statLabel}>Успешных заказов</p>
+          <p className={styles.statLabel}>Успешных {pluralizeOrder(stats.successfulOrders || 0)}</p>
         </div>
         <div className={styles.statCard}>
           <p className={styles.statValue}>{stats.cancelledOrders || 0}</p>
-          <p className={styles.statLabel}>Отмененные</p>
+          <p className={styles.statLabel}>Процент отмененных</p>
         </div>
       </div>
 
@@ -90,6 +94,47 @@ export default function ProfileOverview({ onSubscriptionClick, onSettingsClick, 
         <div className={styles.settingsInfo}>
           <p className={styles.settingsTitle}>Параметры</p>
           <p className={styles.settingsSubtitle}>Настройки приложения</p>
+        </div>
+      </div>
+
+      <div className={styles.settingsCard} onClick={onDocumentsClick}>
+        <div className={styles.settingsIcon}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M14 2V8H20" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M16 13H8" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M16 17H8" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M10 9H9H8" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <div className={styles.settingsInfo}>
+          <p className={styles.settingsTitle}>Документы</p>
+          <p className={styles.settingsSubtitle}>Просмотр документов платформы</p>
+        </div>
+      </div>
+
+      <div className={styles.settingsCard} onClick={onSupportClick}>
+        <div className={styles.settingsIcon}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M18.364 5.63604C21.8787 9.15076 21.8787 14.8492 18.364 18.364C14.8492 21.8787 9.15076 21.8787 5.63604 18.364C2.12132 14.8492 2.12132 9.15076 5.63604 5.63604C9.15076 2.12132 14.8492 2.12132 18.364 5.63604"
+              stroke="#666"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path 
+              d="M12 16V12M12 8H12.01" 
+              stroke="#666" 
+              strokeWidth="2" 
+              strokeLinecap="round"
+              strokeLinejoin="round" 
+            />
+          </svg>
+        </div>
+        <div className={styles.settingsInfo}>
+          <p className={styles.settingsTitle}>Поддержка</p>
+          <p className={styles.settingsSubtitle}>Помощь и консультации</p>
         </div>
       </div>
     </div>

@@ -1,0 +1,191 @@
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10001;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.content {
+  position: relative;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0 20px 24px 20px;
+  z-index: 1;
+  animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  background: #E0E0E0;
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.header {
+  position: relative;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.documentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.documentCard {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.documentCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #1775F1;
+}
+
+.documentIcon {
+  width: 48px;
+  height: 48px;
+  background: #F3F4F6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #1775F1;
+}
+
+.documentInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.documentName {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.4;
+}
+
+.documentType {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.documentActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.downloadButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.downloadButton:hover {
+  background: #F3F4F6;
+  color: #1775F1;
+}
+
+.arrowIcon {
+  color: #999;
+  flex-shrink: 0;
+}
+
+.documentCard:hover .arrowIcon {
+  color: #1775F1;
+}
+

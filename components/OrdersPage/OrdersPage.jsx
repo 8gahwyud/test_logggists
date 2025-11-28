@@ -294,6 +294,7 @@ export default function OrdersPage({ onModalStateChange }) {
        />
              {isModalOpen && selectedOrder && (
                <OrderModal
+                 key={selectedOrder.id} // Пересоздаем модалку при изменении заказа
                  order={selectedOrder}
                  onClose={handleCloseModal}
                  onUpdate={() => {

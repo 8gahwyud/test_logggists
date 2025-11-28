@@ -7,7 +7,7 @@
 .subscriptionCard {
   background: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
@@ -114,6 +114,12 @@
   border-radius: 12px;
   padding: 16px;
   text-align: center;
+}
+
+.statCardNegative {
+  background: #FEE2E2;
+  border: 2px solid #EF4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
 }
 
 .statValue {

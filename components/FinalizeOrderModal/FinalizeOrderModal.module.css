@@ -175,6 +175,11 @@
   transition: all 0.2s;
 }
 
+.performerCard.notRated {
+  border-color: #DC2626;
+  background: #FEF2F2;
+}
+
 .performerHeader {
   display: flex;
   justify-content: space-between;
@@ -331,6 +336,36 @@
 
 .copyButton:hover {
   background: #F0F0F0;
+}
+
+.paymentConfirmationSection {
+  padding-top: 16px;
+  border-top: 1px solid #E0E0E0;
+  margin-bottom: 16px;
+}
+
+.paymentConfirmationLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.paymentConfirmationCheckbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #059669;
+  flex-shrink: 0;
+}
+
+.paymentConfirmationText {
+  font-size: 14px;
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .ratingSection {
