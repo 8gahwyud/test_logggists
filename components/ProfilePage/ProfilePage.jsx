@@ -19,6 +19,15 @@ export default function ProfilePage({ onSubscriptionModalChange, onDocumentsModa
   const successfulOrdersCount = orders.filter(o => o.status === "completed").length
   const cancelledOrdersCount = orders.filter(o => o.status === "cancelled").length
 
+  // Получаем название подписки из базы данных
+  const getSubscriptionName = () => {
+    // Если подписки нет или цена 0, возвращаем null (чтобы показать "Оформить подписку")
+    if (!profile?.subscription || profile.subscription.price === 0 || profile.subscription.price === null) {
+      return null
+    }
+    return profile.subscription.name || null
+  }
+
   // Используем информацию о подписке из базы данных
   const orderLimit = profile?.subscription?.order_limit || 5
   const availableOrders = Math.max(0, orderLimit - (profile?.daily_collected_count || 0))
@@ -68,7 +77,7 @@ export default function ProfilePage({ onSubscriptionModalChange, onDocumentsModa
             onSupportModalChange(true)
           }
         }}
-        subscriptionName={profile?.subscription?.name || 'Start (free)'}
+        subscriptionName={getSubscriptionName() || 'Start (free)'}
         timeUntilReset={timeUntilReset}
         balance={balance}
         stats={{

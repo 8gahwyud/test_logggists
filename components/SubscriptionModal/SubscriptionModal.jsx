@@ -133,7 +133,7 @@ export default function SubscriptionModal({ onClose, onModalStateChange }) {
     setError(null)
 
     try {
-      const resp = await callApi({ action: 'getSubscriptions' })
+      const resp = await callApi({ action: 'getSubscriptions', role: 'logistic' })
       if (resp?.success && resp?.subscriptions) {
         setSubscriptions(resp.subscriptions)
         setSelectedSubscription(resp.subscriptions?.[0]?.id || null)

@@ -15,8 +15,9 @@ export default function ProfileOverview({ onSubscriptionClick, onSettingsClick, 
   }, [timeUntilReset])
 
   // Проверяем, является ли подписка активной и платной
+  // Если subscriptionName === null, значит подписки нет или цена 0 - показываем "Оформить подписку"
   const hasSubscription = subscriptionName && subscriptionName !== 'Start (free)' && subscriptionName !== 'Basic Logistic'
-  const isBasicSubscription = !hasSubscription || subscriptionName === 'Start (free)' || subscriptionName === 'Basic Logistic'
+  const isBasicSubscription = !subscriptionName || !hasSubscription || subscriptionName === 'Start (free)' || subscriptionName === 'Basic Logistic'
 
   return (
     <div className={styles.overview}>

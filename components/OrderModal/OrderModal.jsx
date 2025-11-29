@@ -445,8 +445,14 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
     console.log("[handleCancelOrder] order.status:", order?.status)
     
     // Проверяем минусовой баланс
-    if (checkNegativeBalance && await checkNegativeBalance()) {
-      return
+    if (checkNegativeBalance) {
+      console.log("[handleCancelOrder] Проверка минусового баланса...")
+      const hasNegativeBalance = await checkNegativeBalance()
+      console.log("[handleCancelOrder] Результат проверки баланса:", hasNegativeBalance)
+      if (hasNegativeBalance) {
+        console.log("[handleCancelOrder] ❌ Отмена заблокирована из-за минусового баланса")
+        return
+      }
     }
     
     // Получаем точную сумму комиссий с бэкенда
@@ -501,20 +507,48 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
     try {
       // Преобразуем userId в число, если это строка
       const logistId = typeof userId === 'string' ? Number(userId) : userId
-      console.log("[handleCancelOrder] Отправка запроса на отмену заказа")
+      
+      // Проверяем, что логист является создателем заказа
+      const orderCreatedBy = typeof order.created_by === 'string' ? Number(order.created_by) : order.created_by
+      const logistIdNum = Number(logistId)
+      const orderCreatedByNum = Number(orderCreatedBy)
+      
+      console.log("[handleCancelOrder] Сравнение ID:", {
+        logistId: logistIdNum,
+        orderCreatedBy: orderCreatedByNum,
+        logistIdType: typeof logistIdNum,
+        orderCreatedByType: typeof orderCreatedByNum,
+        match: logistIdNum === orderCreatedByNum
+      })
+      
+      if (logistIdNum !== orderCreatedByNum) {
+        console.error("[handleCancelOrder] ❌ Логист не является создателем заказа:", {
+          logistId: logistIdNum,
+          orderCreatedBy: orderCreatedByNum,
+          logistIdType: typeof logistIdNum,
+          orderCreatedByType: typeof orderCreatedByNum
+        })
+        await showAlert("Ошибка", "Вы не можете отменить этот заказ, так как вы не являетесь его создателем")
+        return
+      }
+      
+      console.log("[handleCancelOrder] ✅ Проверка авторизации пройдена, отправка запроса на отмену заказа")
       console.log("[handleCancelOrder] Параметры запроса:", {
         action: "cancelOrderByLogist",
         order_id: order.id,
-        logist_id: logistId,
+        logist_id: logistIdNum,
         order_id_type: typeof order.id,
-        logist_id_type: typeof logistId
+        logist_id_type: typeof logistIdNum,
+        order_created_by: orderCreatedByNum
       })
       
+      console.log("[handleCancelOrder] Вызов callApi...")
       const resp = await callApi({
         action: "cancelOrderByLogist",
         order_id: order.id,
-        logist_id: logistId
+        logist_id: logistIdNum
       })
+      console.log("[handleCancelOrder] callApi завершен")
 
       console.log("[handleCancelOrder] Ответ сервера:", resp)
       console.log("[handleCancelOrder] resp.success:", resp?.success)
@@ -529,23 +563,36 @@ export default function OrderModal({ order, onClose, onUpdate, onModalStateChang
         console.log("[handleCancelOrder] Показываем alert с сообщением:", message)
         await showAlert("Заказ отменен", message)
         console.log("[handleCancelOrder] Alert закрыт, обновляем заказы")
+        
         // Обновляем список заказов
-        if (loadUserOrders) {
-          console.log("[handleCancelOrder] Вызываем loadUserOrders")
-          await loadUserOrders()
+        try {
+          if (loadUserOrders) {
+            console.log("[handleCancelOrder] Вызываем loadUserOrders")
+            await loadUserOrders()
+            console.log("[handleCancelOrder] loadUserOrders выполнен")
+          }
+        } catch (err) {
+          console.error("[handleCancelOrder] Ошибка при loadUserOrders:", err)
         }
-        if (onUpdate) {
-          console.log("[handleCancelOrder] Вызываем onUpdate")
-          onUpdate()
+        
+        try {
+          if (onUpdate) {
+            console.log("[handleCancelOrder] Вызываем onUpdate")
+            onUpdate()
+            console.log("[handleCancelOrder] onUpdate выполнен")
+          }
+        } catch (err) {
+          console.error("[handleCancelOrder] Ошибка при onUpdate:", err)
         }
+        
         // Небольшая задержка перед закрытием, чтобы убедиться, что все модалки закрылись
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 200))
         console.log("[handleCancelOrder] Закрываем модалку")
         onClose()
         console.log("[handleCancelOrder] Модалка закрыта")
       } else {
         console.error("[handleCancelOrder] Ошибка отмены заказа:", resp)
-        const errorMsg = resp?.error?.message || resp?.error || "Неизвестная ошибка"
+        const errorMsg = resp?.error?.message || resp?.error || resp?.message || "Неизвестная ошибка"
         console.error("[handleCancelOrder] Текст ошибки:", errorMsg)
         await showAlert("Ошибка", 'Ошибка при отмене заказа: ' + errorMsg)
       }

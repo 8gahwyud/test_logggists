@@ -10,12 +10,14 @@ export default function RegistrationModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    bankName: ''
+    bankName: '',
+    referralSource: ''
   })
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [agreedToDocuments, setAgreedToDocuments] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false)
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -30,11 +32,13 @@ export default function RegistrationModal({ isOpen, onClose }) {
       setFormData({
         name: '',
         phone: '',
-        bankName: ''
+        bankName: '',
+        referralSource: ''
       })
       setAvatar(null)
       setAvatarPreview(null)
-      setAgreedToDocuments(false)
+      setAgreedToTerms(false)
+      setAgreedToPrivacy(false)
     }
   }, [isOpen])
 
@@ -115,8 +119,18 @@ export default function RegistrationModal({ isOpen, onClose }) {
       return
     }
 
-    if (!agreedToDocuments) {
-      await showAlert('Ошибка', 'Необходимо согласиться с документами')
+    if (!formData.referralSource) {
+      await showAlert('Ошибка', 'Выберите, откуда вы узнали о нас')
+      return
+    }
+
+    if (!agreedToTerms) {
+      await showAlert('Ошибка', 'Необходимо принять Пользовательское соглашение и Правила размещения объявлений')
+      return
+    }
+
+    if (!agreedToPrivacy) {
+      await showAlert('Ошибка', 'Необходимо дать согласие на обработку персональных данных')
       return
     }
 
@@ -134,6 +148,10 @@ export default function RegistrationModal({ isOpen, onClose }) {
       formDataToSend.append('role', 'logistic')
       formDataToSend.append('phone_number', cleanPhone)
       formDataToSend.append('bank_name', formData.bankName.trim())
+      // Добавляем referral_source только если оно выбрано
+      if (formData.referralSource && formData.referralSource.trim() !== '') {
+        formDataToSend.append('referral_source', formData.referralSource.trim())
+      }
       
       // Добавляем аватарку если есть
       if (avatar) {
@@ -216,6 +234,25 @@ export default function RegistrationModal({ isOpen, onClose }) {
           </div>
 
           <div className={styles.field}>
+            <label className={styles.label}>Откуда узнали о нас?</label>
+            <select
+              className={styles.input}
+              value={formData.referralSource}
+              onChange={(e) => handleInputChange('referralSource', e.target.value)}
+              disabled={isSubmitting}
+              required
+            >
+              <option value="">Выберите вариант</option>
+              <option value="recommended_by_logist">Рекомендовал логист Труво</option>
+              <option value="invited_by_friend">Пригласил друг</option>
+              <option value="avito_ad">Объявление Авито</option>
+              <option value="telegram_channel">В канале/чате Telegram</option>
+              <option value="internet_ad">Реклама в интернете</option>
+              <option value="other">Другое</option>
+            </select>
+          </div>
+
+          <div className={styles.field}>
             <label className={styles.label}>Аватарка (опционально):</label>
             {avatarPreview ? (
               <div className={styles.avatarPreviewContainer}>
@@ -244,6 +281,32 @@ export default function RegistrationModal({ isOpen, onClose }) {
           </div>
 
           <div className={styles.documentsSection}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                disabled={isSubmitting}
+                className={styles.checkbox}
+              />
+              <span className={styles.checkboxText}>
+                Я принимаю Пользовательское соглашение (Публичную оферту) и Правила размещения объявлений
+              </span>
+            </label>
+            
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                disabled={isSubmitting}
+                className={styles.checkbox}
+              />
+              <span className={styles.checkboxText}>
+                Я даю согласие на обработку персональных данных в соответствии с Политикой конфиденциальности
+              </span>
+            </label>
+
             <button
               type="button"
               className={styles.documentsButton}
@@ -256,24 +319,12 @@ export default function RegistrationModal({ isOpen, onClose }) {
               </svg>
               Просмотреть документы
             </button>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={agreedToDocuments}
-                onChange={(e) => setAgreedToDocuments(e.target.checked)}
-                disabled={isSubmitting}
-                className={styles.checkbox}
-              />
-              <span className={styles.checkboxText}>
-                Я согласен(а) со всеми прикрепленными выше документами
-              </span>
-            </label>
           </div>
 
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || !agreedToDocuments}
+            disabled={isSubmitting || !agreedToTerms || !agreedToPrivacy}
           >
             {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>

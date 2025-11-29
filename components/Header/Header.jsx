@@ -10,18 +10,12 @@ export default function Header() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   
   const getStatusText = () => {
-    // Используем название подписки из базы данных
+    // Используем название подписки из базы данных, если оно есть
     if (profile?.subscription?.name) {
       return profile.subscription.name
     }
-    // Fallback на старую логику если subscription не загружена
-    if (!profile || !profile.subscription_tier) return "Start (free)"
-    const tierInfo = {
-      logist_start: "Start (free)",
-      logist_light: "Light",
-      logist_business: "Business"
-    }
-    return tierInfo[profile.subscription_tier] || "Start (free)"
+    // Если подписки нет, показываем "Start (free)"
+    return "Start (free)"
   }
 
   // Получаем URL аватарки из профиля или используем стандартную
